@@ -1,5 +1,7 @@
 name: Nexus ISO Derleyici
 
+name: Nexus ISO Derleyici
+
 on:
   push:
     branches: [ main ]
@@ -8,25 +10,24 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: archlinux:latest # İşlemi doğrudan Arch Linux ortamında çalıştırır
 
     steps:
       - name: Kodlari Depodan Cek
         uses: actions/checkout@v4
 
-      - name: Gerekli Araclari ve Bagimliliklari Yukle
+      - name: Sistem Paketlerini Guncelle ve Araclari Yukle
         run: |
-          sudo apt-get update
-          sudo apt-get install -y archiso xorriso squashfs-tools genisoimage dosfstools mtools
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm archiso xorriso squashfs-tools dosfstools mtools base-devel git
 
       - name: Build Betigini Calistir
         run: |
-          # Betiğe çalıştırma izni veriyoruz ve root yetkisiyle çalıştırıyoruz
           chmod +x build-iso.sh
-          sudo ./build-iso.sh
+          ./build-iso.sh
 
       - name: Olusan ISO Dosyasini Bul ve U.iso Yap
         run: |
-          # Betik bittikten sonra oluşan .iso uzantılı dosyayı bulup U.iso olarak kopyalıyoruz
           find . -name "*.iso" -exec cp {} U.iso \;
           ls -la U.iso
 
