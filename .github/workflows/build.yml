@@ -1,8 +1,9 @@
-name: ISO Olusturucu
+name: Nexus ISO Derleyici
 
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -12,19 +13,25 @@ jobs:
       - name: Kodlari Depodan Cek
         uses: actions/checkout@v4
 
-      - name: Gerekli Araclari Yukle
-        run: sudo apt-get update && sudo apt-get install -y unzip genisoimage
-
-      - name: ZIP Dosyasini Ac ve ISO Yap
+      - name: Gerekli Araclari ve Bagimliliklari Yukle
         run: |
-          # Yüklediğiniz ZIP dosyasını klasöre çıkarıyoruz
-          unzip nexus-os-1.0-arch-1.iso.zip || unzip nexus-os-1.0-arch-1.zip -d extracted_content
-          
-          # Çıkarılan dosyaları ISO formatında paketliyoruz
-          genisoimage -o nexus-os-cikti.iso -R -J extracted_content/
+          sudo apt-get update
+          sudo apt-get install -y archiso xorriso squashfs-tools genisoimage dosfstools mtools
 
-      - name: ISO Dosyasini Artifact Olarak Kaydet
+      - name: Build Betigini Calistir
+        run: |
+          # Betiğe çalıştırma izni veriyoruz ve root yetkisiyle çalıştırıyoruz
+          chmod +x build-iso.sh
+          sudo ./build-iso.sh
+
+      - name: Olusan ISO Dosyasini Bul ve U.iso Yap
+        run: |
+          # Betik bittikten sonra oluşan .iso uzantılı dosyayı bulup U.iso olarak kopyalıyoruz
+          find . -name "*.iso" -exec cp {} U.iso \;
+          ls -la U.iso
+
+      - name: ISO Dosyasini Indirilebilir Kaydet (Artifact)
         uses: actions/upload-artifact@v4
         with:
-          name: hazir-iso-dosyasi
-          path: nexus-os-cikti.iso
+          name: U-iso-dosyasi
+          path: U.iso
