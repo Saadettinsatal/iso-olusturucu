@@ -1,7 +1,5 @@
 name: Nexus ISO Derleyici
 
-name: Nexus ISO Derleyici
-
 on:
   push:
     branches: [ main ]
@@ -36,3 +34,4 @@ jobs:
         with:
           name: U-iso-dosyasi
           path: U.iso
+
